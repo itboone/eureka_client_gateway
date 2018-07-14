@@ -1,0 +1,49 @@
+server:
+  port: 8100
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8091/eureka/
+    # 表示eureka client间隔多久去拉取服务注册信息，默认为30秒，对于api-gateway，如果要迅速获取服务注册状态，可以缩小该值，比如5秒
+    registry-fetch-interval-seconds: 15
+  instance:
+    prefer-ip-address: true
+    status-page-url-path: /actuator/info
+    health-check-url-path: /actuator/health
+spring:
+  application:
+    name: eureka-client-gateway
+  cloud:
+    gateway:
+      # 定义一些共同的filter，对所有路由都起作用
+      default-filters:
+        # to-do: 配置默认全局的断路拦截器 怎么排除个别的route?
+        
+      # 定义具体的路由信息
+      routes:
+        # 这个路由的唯一id，不定义的话为一个uuid
+      - id: msg-push
+        # http请求为lb://前缀 + 服务id；ws请求为lb:ws://前缀 + 服务id；表示将请求负载到哪一个服务上
+        # 注：注册端点不能为"ws"
+        uri: lb://cloud-msg-push
+        # 表示这个路由的请求匹配规则，只有符合这个规则的请求才会走这个路由。为一个数组，每个规则之间为并且的关系
+        predicates:
+        - Path=/msgpush/**
+        # 请求转发前的filter，为一个数组
+        filters:
+        # 表示去掉转发规则的前缀的部分数(只保留**部分)
+        - StripPrefix=1
+        # 这个路由的执行order
+        # order: 1
+      - id: api-test
+        uri: lb://cloud-msg-push
+        predicates:
+        - Path=/userapi/**
+        filters:
+        - StripPrefix=1
+        - name: Hystrix
+          args:
+            # 表示HystrixCommand代码的名称
+            name: fallbackCommand
+            # 表示触发断路由后的跳转请求url 
+            fallbackUri: forward:/hystrixFallback
