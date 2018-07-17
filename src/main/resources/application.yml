@@ -33,12 +33,6 @@ spring:
         filters:
         # 表示去掉转发规则的前缀的部分数(只保留**部分)
         - StripPrefix=1
-        - name: Hystrix
-          args:
-            # 表示HystrixCommand代码的名称
-            name: fallbackCommand
-            # 表示触发断路由后的跳转请求url 
-            fallbackUri: forward:/hystrixFallback
         # 配置这个路由执行的order
         # order: 1
       - id: api-test
