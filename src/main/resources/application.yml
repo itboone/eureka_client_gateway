@@ -17,7 +17,7 @@ spring:
     gateway:
       # 定义一些共同的filter，对所有路由都起作用
       default-filters:
-        # to-do: 配置默认全局的断路拦截器 怎么排除个别的route?
+        # to-do: 配置默认全局的断路拦截器 怎么排除个别的route? 经测试：单独配置熔断并不能覆盖全局熔断
         
       # 定义具体的路由信息
       routes:
@@ -33,17 +33,23 @@ spring:
         filters:
         # 表示去掉转发规则的前缀的部分数(只保留**部分)
         - StripPrefix=1
+        - name: Hystrix
+          args:
+            # 表示HystrixCommand代码的名称
+            name: msgPushCommand
+            # 表示触发断路由后的跳转请求url 
+            fallbackUri: forward:/hystrixFallback
         # 配置这个路由执行的order
         # order: 1
       - id: api-test
         uri: lb://cloud-msg-push
         predicates:
-        - Path=/userapi/**
+        - Path=/apitest/**
         filters:
         - StripPrefix=1
         - name: Hystrix
           args:
             # 表示HystrixCommand代码的名称
-            name: fallbackCommand
+            name: testCommand
             # 表示触发断路由后的跳转请求url 
             fallbackUri: forward:/hystrixFallback
