@@ -22,7 +22,7 @@ spring:
       # 定义具体的路由信息
       routes:
         # 这个路由的唯一id，不定义的话为一个uuid
-      - id: msg-push
+      - id: msg-push-1
         # http请求为lb://前缀 + 服务id；ws请求为lb:ws://前缀 + 服务id；表示将请求负载到哪一个服务上
         # 注：注册端点不能为"ws"
         uri: lb://cloud-msg-push
@@ -41,15 +41,15 @@ spring:
             fallbackUri: forward:/hystrixFallback
         # 配置这个路由执行的order
         # order: 1
-      - id: api-test
-        uri: lb://cloud-msg-push
+      - id: msg-push-2
+        uri: lb:ws://cloud-msg-push
         predicates:
-        - Path=/apitest/**
+        - Path=/msgpush_ws/**
         filters:
         - StripPrefix=1
         - name: Hystrix
           args:
             # 表示HystrixCommand代码的名称
-            name: testCommand
+            name: msgPushCommand2
             # 表示触发断路由后的跳转请求url 
             fallbackUri: forward:/hystrixFallback
