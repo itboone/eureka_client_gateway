@@ -44,12 +44,12 @@ spring:
       - id: msg-push-2
         uri: lb:ws://cloud-msg-push
         predicates:
-        - Path=/msgpush_ws/**
+        - Path=/msgpush-ws/**
         filters:
         - StripPrefix=1
         - name: Hystrix
           args:
             # 表示HystrixCommand代码的名称
-            name: msgPushCommand2
+            name: msgPushCommand-ws
             # 表示触发断路由后的跳转请求url 
             fallbackUri: forward:/hystrixFallback
